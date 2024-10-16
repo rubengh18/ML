@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Enviar Imagen</title>
+</head>
+<body>
+    <h2>Subir Imagen</h2>
+    <form id="formularioImagen" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" id="archivo" name="imagen" accept="image/*">
+        <button type="button" onclick="enviarImagen()">Enviar Imagen</button>
+    </form>
+
+    <script>
+        function enviarImagen() {
+            var input = document.getElementById('archivo');
+            var file = input.files[0];
+            var formData = new FormData();
+            formData.append('imagen', file);
+
+            fetch('http://localhost:8000/procesar_imagen/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')  // Obtener el token CSRF
+                }
+            }).then(response => response.json())
+              .then(data => {
+                  console.log('Respuesta del servidor:', data);
+                  // Aquí puedes manejar la respuesta del servidor según tus necesidades
+              })
+              .catch(error => console.error('Error:', error));
+        }
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>
